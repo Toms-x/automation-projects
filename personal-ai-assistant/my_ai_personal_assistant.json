@@ -1,0 +1,405 @@
+{
+  "name": "my ai personal assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "14448733-9941-49c7-a8f0-eb97e14b12ce",
+      "name": "Telegram Trigger",
+      "webhookId": "10d6be6b-81e9-4608-8a19-ba71eeaf01cb",
+      "credentials": {
+        "telegramApi": {
+          "id": "HcbO1LIvvV0EEekO",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        220,
+        0
+      ],
+      "id": "e6e6e973-2d3d-4f08-a0af-d0a515a8f299",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        100,
+        220
+      ],
+      "id": "4597b7f8-571b-447d-9928-441cedfd1b40",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "l0NpHKfyNgqhr3WZ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "call this tool when you want to send emails",
+        "workflowId": {
+          "__rl": true,
+          "value": "2y38zqkMJECLD2kW",
+          "mode": "list",
+          "cachedResultName": "send emails"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        340
+      ],
+      "id": "05789916-57c7-489e-878f-ae26cd8e10b2",
+      "name": "send_emails"
+    },
+    {
+      "parameters": {
+        "description": "call this tool when you need to get emails",
+        "workflowId": {
+          "__rl": true,
+          "value": "BgwKRyUFeqfU0wzi",
+          "mode": "list",
+          "cachedResultName": "get emails"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        840,
+        320
+      ],
+      "id": "58734e91-3ac8-4de9-b558-84dfcd7c20ae",
+      "name": "get emails"
+    },
+    {
+      "parameters": {
+        "description": "call this tool when you need to get the calender",
+        "workflowId": {
+          "__rl": true,
+          "value": "tE81GuYG5creYLcr",
+          "mode": "list",
+          "cachedResultName": "get calender"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        540,
+        320
+      ],
+      "id": "7bed7d95-3c3a-415c-bcc6-13bf0bc2f510",
+      "name": "get_calendar"
+    },
+    {
+      "parameters": {
+        "description": "call this tool when you need to set calendar",
+        "workflowId": {
+          "__rl": true,
+          "value": "frdorjPzzG1LlHgb",
+          "mode": "list",
+          "cachedResultName": "set calendar"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        440,
+        360
+      ],
+      "id": "043cd285-767f-452f-b5e3-da0c0741afdb",
+      "name": "set calendar"
+    },
+    {
+      "parameters": {
+        "description": "call this tool if you need to update the databse",
+        "workflowId": {
+          "__rl": true,
+          "value": "PPK7GjvMlCmWnu2M",
+          "mode": "list",
+          "cachedResultName": "update database"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        300,
+        420
+      ],
+      "id": "f293a9d4-ab41-4514-b70b-c132837f8d9c",
+      "name": "update database"
+    },
+    {
+      "parameters": {
+        "description": "call this tool to summarize our database",
+        "workflowId": {
+          "__rl": true,
+          "value": "w71Ax5sOW8UU0ZIu",
+          "mode": "list",
+          "cachedResultName": "summarize database"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        200,
+        400
+      ],
+      "id": "4ccba9b4-24ea-4150-abd5-67500e2691b8",
+      "name": "summarize database"
+    },
+    {
+      "parameters": {
+        "chatId": "1136568017",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        580,
+        0
+      ],
+      "id": "a363b428-83f3-4d0d-ade3-524cb1be5832",
+      "name": "Telegram",
+      "webhookId": "6d678d89-be35-445f-b965-3a0a62fa7f24",
+      "credentials": {
+        "telegramApi": {
+          "id": "HcbO1LIvvV0EEekO",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "call this tool when you need to get my contact data",
+        "workflowId": {
+          "__rl": true,
+          "value": "A6RxslpIEg6p3Ny0",
+          "mode": "list",
+          "cachedResultName": "contacts"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1000,
+        280
+      ],
+      "id": "e5850ff2-915e-4bfe-88e4-3ab79b25d2be",
+      "name": "contacts"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "send_emails": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get emails": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update database": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "summarize database": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "contacts": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8115e10e-ca65-4ead-b628-a3ae77e68e87",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "cdbfe077399570edb7e9e19864274d68d0b79d88a6c9c3be3c7878c897f27ed9"
+  },
+  "id": "3xk8dBVpEU54nIyk",
+  "tags": []
+}
