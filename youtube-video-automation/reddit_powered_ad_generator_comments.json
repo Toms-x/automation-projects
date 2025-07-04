@@ -1,0 +1,956 @@
+{
+  "name": "reddit-powered ad generator comments",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "pls add details",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "brand name"
+            },
+            {
+              "fieldLabel": "website"
+            },
+            {
+              "fieldLabel": "product description"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "81d1e575-e619-4a51-b3a3-5c52e7968e03",
+      "name": "On form submission",
+      "webhookId": "b49c43ca-3289-4707-9aba-82038bb0ff13"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "3a3029c0-0c12-46d2-89a6-442676ed725f",
+              "leftValue": "={{ $json.ups }}",
+              "rightValue": 2,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            },
+            {
+              "id": "328944fa-1000-4dae-ab4f-d4aa3bd9d96c",
+              "leftValue": "={{ $json.selftext_html }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        800,
+        0
+      ],
+      "id": "548bd13f-c39e-46de-be21-6642a63c381f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1000,
+        140
+      ],
+      "id": "5ee312d5-a032-49ce-b37b-4295fd1b7844",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "r77GSKUkvKO54IQX",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"isRelevant\": \"true\",\n\t\"reason\": \"the user describes the exact point our product solves\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        1200,
+        120
+      ],
+      "id": "8b232cd6-ddd5-4b86-b7ab-cf744e89da05",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.selftext }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1100,
+        280
+      ],
+      "id": "705557b5-8304-4f10-bf42-16bd83bbff13",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "=data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        -100
+      ],
+      "id": "f3029e88-49a0-4231-9440-5d5f427fd248",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1760,
+        100
+      ],
+      "id": "222f3b0f-63c6-4900-b723-73d156b66234",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "r77GSKUkvKO54IQX",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1,
+      "position": [
+        1980,
+        120
+      ],
+      "id": "274c499b-5b79-4b54-9df4-580745180d76",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "[\n  { \"prompt\": \"Panel 1: ...\" }\n]"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        2720,
+        120
+      ],
+      "id": "4f71a110-c967-432d-b062-08289b95c0fb",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2520,
+        120
+      ],
+      "id": "560eef44-87ca-4b9c-9fb0-db66a0632bc0",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "r77GSKUkvKO54IQX",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        2900,
+        -100
+      ],
+      "id": "14740e63-bb5d-4bd0-8377-b0dbe371bb11",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        3200,
+        -120
+      ],
+      "id": "f613ec0a-a9af-4aa3-9e89-f8a230f835c8",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/images/generations",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "dall-e-3"
+            },
+            {
+              "name": "prompt",
+              "value": "={{ $json.prompt }}"
+            },
+            {
+              "name": "size",
+              "value": "1024x1024"
+            }
+          ]
+        },
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 10000
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3560,
+        -100
+      ],
+      "id": "0be97a5d-d67d-48b3-80bd-28f987f98a50",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "rutxboYzsLti5Uwc",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1JN-DJar_8XtAWGO_T7_IFH_s69Wmu9tE",
+          "mode": "list",
+          "cachedResultName": "automation",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1JN-DJar_8XtAWGO_T7_IFH_s69Wmu9tE"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        4280,
+        -100
+      ],
+      "id": "37b20c39-045f-4199-95c6-082803a5a3c5",
+      "name": "Google Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "tp9qYRIH4v89k8HX",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "data[0].url",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        3960,
+        -100
+      ],
+      "id": "57b129a0-024b-49c9-921a-219c49fd923f",
+      "name": "Convert to File"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.data[0].url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3780,
+        -100
+      ],
+      "id": "61eadf4f-85b5-4296-9f9a-3fed8b68aa66",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "content": "The workflow starts when a user submits this form, providing a brand name, website, and product description.",
+        "height": 120,
+        "width": 200
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -140
+      ],
+      "id": "eb539476-157b-4fdc-bdd0-cee8f31ab341",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a marketing strategist and Reddit researcher. Given the following product description, extract a single keyword or phrase (1 to 3 words max)\nthat people on Reddit might use when discussing pain points related to this product or service.\n\nReturn ONLY the keyword or phrase, no extra text.\nProduct description: {{ $json['product description'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        220,
+        0
+      ],
+      "id": "16590cb3-4baa-45d0-bf22-20fd1b5ee0ff",
+      "name": "Keyword extractor",
+      "credentials": {
+        "openAiApi": {
+          "id": "r77GSKUkvKO54IQX",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "The product description is sent to an AI to extract a keyword or short phrase that represents a customer 'pain point'.",
+        "height": 120,
+        "width": 200,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        260,
+        -140
+      ],
+      "id": "477c3b44-c752-4af7-9a89-f5e3c7cc2826",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "The 'pain point' keyword is used to search all of Reddit for relevant posts and discussions.",
+        "height": 100,
+        "width": 200,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        520,
+        -120
+      ],
+      "id": "f44ffe35-4a22-4877-99e1-17461f2df467",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "location": "allReddit",
+        "keyword": "={{ $json.message.content }}",
+        "limit": 10,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.reddit",
+      "typeVersion": 1,
+      "position": [
+        580,
+        0
+      ],
+      "id": "e01a3148-a7c8-4ff6-ab28-c38b3ca44c73",
+      "name": "Search pain point",
+      "credentials": {
+        "redditOAuth2Api": {
+          "id": "7nNiMYRuyPEAptvM",
+          "name": "Reddit account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "This node filters the search results, keeping only posts that have more than 2 upvotes and contain actual text.",
+        "height": 120,
+        "width": 200,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        760,
+        120
+      ],
+      "id": "ef0243c0-fee2-4706-b74a-2e4d22eca90d",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Important: always use the memory tool\n\nYou are a content relevance classifier.\nGiven the following DTC product description: {{ $('On form submission').item.json['product description'] }}\n\nAnd the details of a single Reddit post:\n• **Title**: {{ $json.title }}\n• **Content**: {{ $json.selftext }}\n• **Subreddit**: {{ $json.subreddit }}\n• **Upvotes**: {{ $json.ups }}\n• **Upvote Ratio**: {{ $json.upvote_ratio }}\n• **URL**:{{ $json.url }}\n\nYour task is to determine whether this post is relevant for marketing our product.\nReturn **only** a JSON array with one object containing two fields:\n- 'isRelevant': 'true' if the post is relevant, otherwise 'false'\n- 'reason\": a short explanation of why you judged it relevant or not\nExample output:\n\"isRelevant\": true,\n\"reason\": \"The user describes the exact pain point our product solves.\"\n]|",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        1020,
+        -100
+      ],
+      "id": "83e7f564-2afe-4ed9-82f5-a2bf27ccf44a",
+      "name": "Analyze posts"
+    },
+    {
+      "parameters": {
+        "content": "An AI Agent analyzes each filtered Reddit post to determine if it's truly relevant for marketing the product.",
+        "height": 120,
+        "width": 200,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1060,
+        -240
+      ],
+      "id": "8f66fa1e-890f-47d1-815b-c07ce55bdd33",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b1b3b737-76a8-4b5c-9520-b165084ca957",
+              "name": "upvotes",
+              "value": "={{ $('If').item.json.ups }}",
+              "type": "string"
+            },
+            {
+              "id": "2b187e2a-68e8-4ea6-a493-a0f004a93245",
+              "name": "subreddit",
+              "value": "={{ $('Search pain point').item.json.subreddit }}",
+              "type": "string"
+            },
+            {
+              "id": "57cffac7-416c-420b-a5d3-c809d21227fa",
+              "name": "title",
+              "value": "={{ $('Search pain point').item.json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "ecd32362-015a-44ad-9291-2984ebd0a7c0",
+              "name": "url",
+              "value": "={{ $('If').item.json.url }}",
+              "type": "string"
+            },
+            {
+              "id": "c434d6a5-2e60-4cd2-a4c1-5574d49e5f47",
+              "name": "original post",
+              "value": "={{ $('If').item.json.selftext }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1380,
+        -100
+      ],
+      "id": "19f79ea7-446e-45f4-9bb0-69e14ee27931",
+      "name": "Combine Fields"
+    },
+    {
+      "parameters": {
+        "content": "All the individual, relevant posts are gathered into a single list for the next step",
+        "height": 80,
+        "width": 220,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1400,
+        -220
+      ],
+      "id": "13bcd713-f094-4cc3-ae69-dab92525e467",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "A 'copywriter' AI agent takes the list of Reddit pain points and generates 10 unique marketing messages or ad angles.",
+        "height": 100,
+        "width": 280,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1820,
+        -240
+      ],
+      "id": "ee4d334a-ec00-4ea6-b418-d39c57b392e5",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a copywriter and strategist helping a brand turn Reddit pain points into powerful marketing messages.\n\nHere are Reddit posts expressing a problems or frustration:\n{{ JSON. stringify($json.data) }}|\n\nThe brand's product is described as: {{ $('On form submission').item.json['product description'] }}\n\nYour job is to create 10 unique, punchy variations of how this product solves the pain in the Reddit posts.\n\nEach variation should be:\n- ﻿﻿1-2 sentences|\n- ﻿﻿Emotionally resonant\n- ﻿﻿Framed as a \"hero\" moment (where the product enters to solve the issue)\n\nThink of these like ad angles or mini comic scripts. Output the list clearly as:\n1. ...\n2. ...\n3. ...\n\n...\n10. ...",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        1820,
+        -100
+      ],
+      "id": "8a816e4a-c2e9-4483-b658-743210db85a7",
+      "name": "Copywriter Agent"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a marketing strategist helping evaluate potential ad angles for a service.\n\nThe service is described as: \n\nBelow is a list of short ad variations generated from Reddit-sourced user pain points.\n\nPlease do the following:\n1. Review all variations.\n2. Select the top 10 that are most relevant and persuasive for this product.\n3. Re-rank them from best to least among the 10.\n4. Return them clearly as a numbered list (1 to 10), with no commentary.\n5. Only select the 10 most emotionally persuasive and service-relevant ad angles.\n\nIgnore redundant or vague lines.\n\nVariations: {{ $json.output }}",
+              "role": "system"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        2180,
+        -100
+      ],
+      "id": "81c9ad6e-54c6-42b6-9f11-f00efa93da38",
+      "name": "Rank ads",
+      "credentials": {
+        "openAiApi": {
+          "id": "r77GSKUkvKO54IQX",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Another AI refines and ranks the 10 ad angles to select the most persuasive ones.",
+        "height": 100,
+        "width": 200,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2200,
+        -240
+      ],
+      "id": "0d812e40-8651-4b9a-869e-9985c9070d19",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a creative director making 4-panel comic ads for a product.\n\nThe product/sevice is: {{ $('On form submission').item.json['product description'] }}\n\nHere's the ad message: {{ $json.message.content }}\n\nWrite a prompt for an AI image generator that describes a 4-panel comic showing this message as a visual story.\n\nFormat the output like:\n\n**Prompt**:\nCreate a single image showing a 4-panel comic in clean, minimal style.\nPanel 1: [setup/pain point]\nPanel 2: [escalation]\nPanel 3: [product enters heroically]\nPanel 4: [positive outcome]",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Please generate 10 creative image prompts that visualize the message above as separate 4-panel comics. make sure the prompts are 10.\n\nOutput must be a JSON array of 10 objects, each with a \"prompt\" property, like:\n[\n  { \"prompt\": \"Panel 1: ...\" },\n  ...\n]"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        2540,
+        -100
+      ],
+      "id": "70897c5b-c1af-4ba0-8d81-cdc8aa4a4df2",
+      "name": "creative director"
+    },
+    {
+      "parameters": {
+        "content": "A 'creative director' AI agent writes prompts to create a 4-panel comic strip for each of the top ad angles.",
+        "height": 100,
+        "width": 220,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2560,
+        -240
+      ],
+      "id": "f4797177-24ea-45e0-8277-153bf39b0c33",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "- This loop processes each comic prompt one by one to generate an image for it.\n\n- Inside the loop, this node sends the prompt to DALL-E 3 to generate the 4-panel comic image.\n\nThe final generated comic image is uploaded and saved to a specific folder in Google Drive.",
+        "height": 240,
+        "width": 280,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        3360,
+        -360
+      ],
+      "id": "e6f4bd1f-e6b1-416b-8afc-f546969b4a2e",
+      "name": "Sticky Note9"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Keyword extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Analyze posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Analyze posts",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Analyze posts",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Analyze posts",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Copywriter Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Copywriter Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "Copywriter Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "creative director",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "creative director",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keyword extractor": {
+      "main": [
+        [
+          {
+            "node": "Search pain point",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search pain point": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze posts": {
+      "main": [
+        [
+          {
+            "node": "Combine Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Fields": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Copywriter Agent": {
+      "main": [
+        [
+          {
+            "node": "Rank ads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rank ads": {
+      "main": [
+        [
+          {
+            "node": "creative director",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "creative director": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "4972e0dc-0c97-4cf6-94e5-795d8ce5b637",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f69420843805697582df8f8dfc0958cd3fad97c6c5d31cf808af7cf8d8b91696"
+  },
+  "id": "nCjrhDLbgvTU00dR",
+  "tags": []
+}
