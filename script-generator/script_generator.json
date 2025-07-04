@@ -1,0 +1,959 @@
+{
+  "name": "script-generator",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "3b0bc6b5-7230-4f26-a90b-1b163bbf0f44",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        280
+      ],
+      "id": "6aec1a33-21bc-4268-a4c6-e598cef2bf95",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "r77GSKUkvKO54IQX",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "call this tool to get reddit data",
+        "workflowId": {
+          "__rl": true,
+          "value": "X61lsMdP3TB2Nng0",
+          "mode": "list",
+          "cachedResultName": "reddit-finance-research"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "array",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        700,
+        280
+      ],
+      "id": "8d433c89-94de-41f1-8c59-b77bd75dca79",
+      "name": "reddit fetcher"
+    },
+    {
+      "parameters": {
+        "description": "call this tool to get google trends data",
+        "workflowId": {
+          "__rl": true,
+          "value": "3k5fvMd5WWW72ZP0",
+          "mode": "list",
+          "cachedResultName": "google trends"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "output",
+              "displayName": "output",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "array",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        600,
+        380
+      ],
+      "id": "bcaf1b88-bbc4-419d-aa75-d2090af1f87a",
+      "name": "google-trends fetcher"
+    },
+    {
+      "parameters": {
+        "description": "call this tool when you need to get trending finance news",
+        "workflowId": {
+          "__rl": true,
+          "value": "kMx0VLnakc7FQTbT",
+          "mode": "list",
+          "cachedResultName": "finance-news"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "output",
+              "displayName": "output",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "array",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        420
+      ],
+      "id": "dc5c26ed-a590-4839-8a51-087bf3a92857",
+      "name": "finance news fetcher"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"google_trends\": [ \"1. [Topic Title] (Tag)\" ],\n  \"reddit\": [ \"1. [Topic Title] (Tag)\" ],\n  \"news\": [ \"1. [Topic Title] (Tag)\" ],\n  \"historical_context\": [ \"1. [Topic Title] – [Short historical insight] (Tag)\" ]\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        840,
+        300
+      ],
+      "id": "7f827b9e-e409-474a-a1a3-3420ee29c004",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-3.5-turbo",
+          "mode": "list",
+          "cachedResultName": "GPT-3.5-TURBO"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a YouTube content strategist. You've been given up to 5 trending finance-related topics each from:\n\nGoogle Trends: {{ $json.output.google_trends }}\n\nReddit: {{ $json.output.reddit }}\n\nNews headlines: {{ $json.output.news }}\n\nHistorical context: {{ $json.output.historical_context }}\n\nYour job is to: \n\nReview all 20 topics.\n\nConsider overlap, uniqueness, potential audience engagement, content depth, and timeliness.\n\nSelect exactly 3 topics (regardless of source) that are most likely to perform well on a YouTube finance channel.\n\n✅ Return them in this structured JSON format:\n\n{\n  \"selected_topics\": [\n    {\n      \"title\": \"Bitcoin ETFs Surge in Volume\",\n      \"source\": \"Google Trends\",\n      \"tag\": \"Crypto\"\n    },\n    {\n      \"title\": \"Why FIRE Is Trending Again\",\n      \"source\": \"Reddit\",\n      \"tag\": \"Personal Finance\"\n    },\n    {\n      \"title\": \"Naira Strengthens in FX Markets\",\n      \"source\": \"News\",\n      \"tag\": \"Emerging Markets\"\n    }\n  ]\n}\n\n\nOnly return valid JSON. No explanations.",
+              "role": "system"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        960,
+        0
+      ],
+      "id": "bfcac626-42e3-4398-ac32-641d3b61b826",
+      "name": "Get 3 topics",
+      "credentials": {
+        "openAiApi": {
+          "id": "r77GSKUkvKO54IQX",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You are a content strategist. You’ve received a list of trending topics scraped from Google Trends, Reddit, and top finance news sources. \n\nYour job is to:\n\n\n1. Identify recurring or similar topics (group them if needed).\n2. Rank the most relevant and impactful finance/business-related topics for a general YouTube audience.\n3. Return exactly 5 topics in a clean list.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are a YouTube content strategist. You’ve received up to 5 trending topics each from three sources: Google Trends, Reddit, and top finance news websites, giving you a total of up to 15 raw topics.\n\nYour tasks:\n\nAnalyze all 15 topics to identify overlaps, recurring themes, and potential historical context.\n\nGroup similar topics together where necessary (e.g., the same trend worded differently).\n\nEvaluate each topic’s potential to generate engaging, informative, and high-performing YouTube content for a general finance/business audience.\n\nFrom your analysis, select and rank the top 5 topics from each source, based on:\n\nCurrent relevance and traction\n\nAudience appeal and accessibility\n\nPotential for evergreen, historical deep-dives, or time-sensitive content\n\nAdditionally, identify and return 5 topics (regardless of source) that carry notable historical context, suitable for storytelling, comparison, or analysis videos.\n\n✅ Return the final result as a valid JSON object with the following structure:\n\n\n{\n  \"google_trends\": [\n    \"1. [Topic Title] (Tag)\",\n    \"2. [Topic Title] (Tag)\",\n    ...\n  ],\n  \"reddit\": [\n    \"1. [Topic Title] (Tag)\",\n    ...\n  ],\n  \"news\": [\n    \"1. [Topic Title] (Tag)\",\n    ...\n  ],\n  \"historical_context\": [\n    \"1. [Topic Title] – [Brief historical insight] (Tag)\",\n    ...\n  ]\n}\n\n⛔ No other explanation, no intro, no markdown. Only return this JSON object.\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        340,
+        0
+      ],
+      "id": "cd432783-3e76-433b-b778-bb38eee9d8ec",
+      "name": "Video content research"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are a professional YouTube scriptwriter.",
+              "role": "system"
+            },
+            {
+              "content": "=You are a professional YouTube scriptwriter. Write a compelling and well-structured script for a finance YouTube video based on the topic below.\n\nInstructions:\n\nLength: 1,900–2,200 words (for a 12–15 min video)\n\nTone: Informative, clear, engaging\n\nHook: Start with a powerful opening to grab attention\n\nStructure: Use clear sections with transitions, build storytelling or analysis as needed\n\nEnding: Finish with a strong conclusion or CTA (e.g., “subscribe for more”, or “let me know what you think”)\n\nAudience: General finance/business YouTube audience — assume they’re curious but not experts\n\nAlso, make it sound human. consider that you are talking to humans so speak in their langiage\n\nTopic: {{ $json.message.content.selected_topics[2].title }}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1540,
+        -140
+      ],
+      "id": "54dd9348-c424-462e-b08e-3cefd9e4d9b9",
+      "name": "Script Generator",
+      "credentials": {
+        "openAiApi": {
+          "id": "r77GSKUkvKO54IQX",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "Title Suggestions Generator",
+              "role": "system"
+            },
+            {
+              "content": "=You are a YouTube SEO strategist.\nBased on the finance/business topic below, write 3 clickable YouTube video titles that:\n\nAre attention-grabbing and make the viewer curious\n\nUse clear keywords related to finance or the topic\n\nInclude numbers, emotion, or urgency where possible\n\nAre optimized for audience appeal and algorithm discovery\n\nTopic: {{title}}\n\nExpected Output (JSON Preferred):\n\njson\nCopy\nEdit\n{\n  \"title_suggestions\": [\n    \"How This ETF Could Explode in 2025\",\n    \"The Truth About FIRE: What No One Tells You\",\n    \"Why the USD Naira Is Surging — And What It Means\"\n  ]\n}\n"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1540,
+        0
+      ],
+      "id": "43b64440-b315-4b9b-935d-1de4f97e873e",
+      "name": "Title Suggestions Generator",
+      "credentials": {
+        "openAiApi": {
+          "id": "r77GSKUkvKO54IQX",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-3.5-turbo",
+          "mode": "list",
+          "cachedResultName": "GPT-3.5-TURBO"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a YouTube thumbnail strategist.",
+              "role": "system"
+            },
+            {
+              "content": "=Based on the topic below, generate 3 short thumbnail text hooks that are:\n\nPunchy (max 4 words)\n\nUse strong emotion or contrast (e.g. fear, gain, urgency, disbelief)\n\nDesigned to catch the eye instantly\n\nStyled for finance/business YouTube audience\n\nEach should be usable as a bold, high-contrast visual on a YouTube thumbnail.\n\nTopic: {{ $json.message.content.selected_topics[2].title }}\n\nExpected Output (JSON Preferred):\n\n  \"thumbnail_hooks\": [\n    \"They're Hiding This\",\n    \"$100,000 In 6 Months\",\n    \"Finance Is Changing!\"\n  ]\n}\n"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1540,
+        140
+      ],
+      "id": "1e2c20e9-8fe7-4d3c-893e-4655804ff3ea",
+      "name": "Thumbnail Hook Generator",
+      "credentials": {
+        "openAiApi": {
+          "id": "r77GSKUkvKO54IQX",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 3,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2080,
+        0
+      ],
+      "id": "8d94e833-60fa-495a-9885-78474855f657",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "36dfb008-f7a0-407f-8660-bc76156c1d20",
+              "name": "title",
+              "value": "={{ $json.message.content.title }}",
+              "type": "string"
+            },
+            {
+              "id": "8d7f964f-f1fa-459d-98c9-cd7478b223a0",
+              "name": "script",
+              "value": "={{ $json.message.content.script.map(section => {\n  if (Array.isArray(section.content)) {\n    return `${section.section}:\\n${section.content.map(company => `• ${company.company} (${company.ticker}): ${company.story}`).join('\\n')}`;\n  } else {\n    return `${section.section}:\\n${section.content}`;\n  }\n}).join('\\n\\n') }}",
+              "type": "string"
+            },
+            {
+              "id": "d117d5c9-bd7f-4042-acab-f2ede3af4eca",
+              "name": "source",
+              "value": "={{ $('Get 3 topics').item.json.message.content.selected_topics[2].source }}",
+              "type": "string"
+            },
+            {
+              "id": "9d48d8e8-86c2-411f-8d74-b91720ac9f9e",
+              "name": "tag",
+              "value": "={{ $('Get 3 topics').item.json.message.content.selected_topics[2].tag }}",
+              "type": "string"
+            },
+            {
+              "id": "5fdbd1c8-f433-47fa-abd5-4d0c9d11219a",
+              "name": "thumbnail_hooks",
+              "value": "={{ $json.message.content.thumbnail_hooks.join('\\n') }}",
+              "type": "string"
+            },
+            {
+              "id": "dc2fce65-d3c9-4e80-a3a0-87ec25ed5bc7",
+              "name": "title_suggestions",
+              "value": "={{ $json.message.content.title_suggestions.join('\\n') }}",
+              "type": "string"
+            },
+            {
+              "id": "df7b3d86-f72a-4c2a-8a95-8dd2f685045c",
+              "name": "timestamp",
+              "value": "={{ new Date().toLocaleString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2400,
+        0
+      ],
+      "id": "e56dd8d6-6f86-44bd-8313-a686df2ac1c8",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "resource": "speech",
+        "voice": {
+          "__rl": true,
+          "value": "AZnzlk1XvdvUeBnXmlld",
+          "mode": "list",
+          "cachedResultName": "Domi"
+        },
+        "text": "={{ $json.formatted_script }}",
+        "additionalOptions": {},
+        "requestOptions": {}
+      },
+      "type": "@elevenlabs/n8n-nodes-elevenlabs.elevenLabs",
+      "typeVersion": 1,
+      "position": [
+        2680,
+        140
+      ],
+      "id": "0797c2e1-138a-48e2-8cc9-99e90f7f8a21",
+      "name": "ElevenLabs",
+      "credentials": {
+        "elevenLabsApi": {
+          "id": "3t4qCo7kzsGoVhtv",
+          "name": "ElevenLabs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1NzZja4tXDkD31VJKYkFFSyV6WrWMy0nXk90-EzgDUb8",
+          "mode": "list",
+          "cachedResultName": "youtube automation log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NzZja4tXDkD31VJKYkFFSyV6WrWMy0nXk90-EzgDUb8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NzZja4tXDkD31VJKYkFFSyV6WrWMy0nXk90-EzgDUb8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "title": "={{ $json.title }}",
+            "script": "={{ $json.formatted_script }}",
+            "source": "={{ $json.source }}",
+            "tag": "={{ $json.tag }}",
+            "title_suggestions": "={{ $json.title_suggestions }}",
+            "thumbnail_hooks": "={{ $json.thumbnail_hooks }}",
+            "timestamp": "={{ $json.timestamp }}"
+          },
+          "matchingColumns": [
+            "title"
+          ],
+          "schema": [
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "script",
+              "displayName": "script",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "tag",
+              "displayName": "tag",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "title_suggestions",
+              "displayName": "title_suggestions",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "thumbnail_hooks",
+              "displayName": "thumbnail_hooks",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2660,
+        -180
+      ],
+      "id": "7dd8e613-eab8-4708-9a42-de41d486d12c",
+      "name": "Log video details",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "e6MEHtrnW9Tglkj3",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C091L5XRLDV",
+          "mode": "list",
+          "cachedResultName": "youtube-video-automation"
+        },
+        "text": "=Please review this topic for YouTube:\n\n{{ $json.formatted }}\n\nClick below to approve and resume:\n\n👉 {{$execution.resumeUrl}}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1160,
+        -180
+      ],
+      "id": "96772510-61b5-4272-ad59-a12ee3a8d7a8",
+      "name": "Slack",
+      "webhookId": "48ee1cfc-8105-412c-a238-091113789176",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "F3AWFwnojqNJWh1G",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const output = $json.output;\n\nreturn [\n  {\n    json: {\n      formatted: `\n📊 Google Trends:\n${output.google_trends.join('\\n')}\n\n🧵 Reddit Trends:\n${output.reddit.join('\\n')}\n\n📰 Finance News:\n${output.news.join('\\n')}\n\n📚 Historical Context Topics:\n${output.historical_context.join('\\n')}\n      `.trim()\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        840,
+        -180
+      ],
+      "id": "0dd55f77-4f5a-499f-93c6-6afe74295412",
+      "name": "format topics"
+    },
+    {
+      "parameters": {
+        "content": "This node triggers the workflow to run automatically every 24 hours.\",\n",
+        "height": 80
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -100
+      ],
+      "id": "5185e5f1-1f56-4750-a131-c3c959c14eeb",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "The 'brain' of the research phase. This AI Agent uses its tools to gather trending topics from Reddit, Google, and news sites.",
+        "height": 80,
+        "width": 320,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        300,
+        -100
+      ],
+      "id": "7f06beb3-8700-4fc3-a17f-7031e924de98",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "After gathering topics, this node formats them neatly for review.",
+        "height": 100,
+        "width": 150,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        820,
+        -320
+      ],
+      "id": "56bcac3d-f060-4311-9136-bf59d6c4ecea",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "Sends the formatted list of topics to a Slack channel for human approval. The workflow pauses here until someone clicks the 'resume' link.",
+        "height": 140,
+        "width": 230,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        -340
+      ],
+      "id": "966b2590-dfc6-4c0f-b067-8d234bb73e53",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "After approval, this AI node analyzes the curated list and selects the top 3 best topics for a YouTube video.",
+        "height": 100,
+        "width": 230,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        980,
+        140
+      ],
+      "id": "0c1cc154-eaab-4335-a449-ac2c131da427",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "1. Generates a full-length (1900-2200 word) video script for one of the selected topics.\n\n2. Generates 3 catchy, SEO-friendly titles for the video.\n\n3. Generates 3 short, punchy text hooks to be used on the video's thumbnail.",
+        "height": 220,
+        "width": 270,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        -380
+      ],
+      "id": "7f34562c-bfd2-425c-a337-7524db1ecfd7",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "Merges the script, titles, and thumbnail hooks into a single dataset.",
+        "height": 80,
+        "width": 190,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2020,
+        -120
+      ],
+      "id": "893e1d5f-c7e6-4067-9958-6b6d12fe21e4",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "Cleans up and organizes the final data before the last steps.",
+        "height": 80,
+        "width": 190,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2340,
+        -120
+      ],
+      "id": "ed446c43-ee14-4340-a064-e6e44d036bf7",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "content": "Logs all the generated content (script, titles, etc.) into a Google Sheet for record-keeping.",
+        "height": 120,
+        "width": 170,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2620,
+        -320
+      ],
+      "id": "1ed6a0fb-6139-4592-a5b5-cd88ef31c06b",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "Converts the final script into a realistic voiceover audio file using ElevenLabs.",
+        "height": 100,
+        "width": 170
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        2660,
+        320
+      ],
+      "id": "d15136e7-87d1-48fd-9708-7541c7029127",
+      "name": "Sticky Note9"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Video content research",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Video content research",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "reddit fetcher": {
+      "ai_tool": [
+        [
+          {
+            "node": "Video content research",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "google-trends fetcher": {
+      "ai_tool": [
+        [
+          {
+            "node": "Video content research",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "finance news fetcher": {
+      "ai_tool": [
+        [
+          {
+            "node": "Video content research",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Video content research",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video content research": {
+      "main": [
+        [
+          {
+            "node": "Get 3 topics",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "format topics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get 3 topics": {
+      "main": [
+        [
+          {
+            "node": "Title Suggestions Generator",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Script Generator",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Thumbnail Hook Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Thumbnail Hook Generator": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Script Generator": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Title Suggestions Generator": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Log video details",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "ElevenLabs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack": {
+      "main": [
+        []
+      ]
+    },
+    "format topics": {
+      "main": [
+        [
+          {
+            "node": "Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "24e0c9aa-e1d9-4fb3-a4e8-333ed1b328e4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f69420843805697582df8f8dfc0958cd3fad97c6c5d31cf808af7cf8d8b91696"
+  },
+  "id": "GxBB5l2mIyUmbk8X",
+  "tags": []
+}
